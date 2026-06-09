@@ -1,0 +1,1102 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>定向提报 Demo</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: #1f2430;
+        background: #f5f7fb;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+          "Microsoft YaHei", sans-serif;
+      }
+
+      button,
+      input,
+      textarea,
+      select {
+        font: inherit;
+      }
+
+      .page {
+        min-height: 100vh;
+        padding: 28px 36px;
+      }
+
+      .page-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+      }
+
+      .page-title {
+        margin: 0;
+        color: #151923;
+        font-size: 24px;
+        font-weight: 650;
+      }
+
+      .header-actions {
+        display: flex;
+        gap: 12px;
+      }
+
+      .btn {
+        height: 40px;
+        padding: 0 18px;
+        border: 1px solid #d8dde8;
+        border-radius: 4px;
+        color: #4d5668;
+        background: #fff;
+        cursor: pointer;
+      }
+
+      .btn-primary {
+        border-color: #245bff;
+        color: #fff;
+        background: #245bff;
+      }
+
+      .btn-link {
+        border: 0;
+        color: #245bff;
+        background: transparent;
+      }
+
+      .table-wrap {
+        overflow: hidden;
+        border: 1px solid #e6e9f1;
+        border-radius: 6px;
+        background: #fff;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        height: 58px;
+        padding: 0 18px;
+        border-bottom: 1px solid #eef1f6;
+        text-align: left;
+        font-size: 14px;
+      }
+
+      th {
+        color: #697386;
+        background: #f8f9fc;
+        font-weight: 600;
+      }
+
+      td {
+        color: #252b3a;
+      }
+
+      .status {
+        display: inline-flex;
+        align-items: center;
+        height: 24px;
+        padding: 0 8px;
+        border-radius: 3px;
+        color: #1b8f53;
+        background: #eaf8f0;
+        font-size: 12px;
+      }
+
+      .mask {
+        position: fixed;
+        inset: 0;
+        display: none;
+        background: rgba(20, 24, 32, 0.46);
+        z-index: 20;
+      }
+
+      .mask.is-open {
+        display: block;
+      }
+
+      .modal {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        width: min(720px, calc(100vw - 48px));
+        max-height: calc(100vh - 56px);
+        overflow: auto;
+        transform: translate(-50%, -50%);
+        border-radius: 8px;
+        background: #fff;
+        z-index: 30;
+        box-shadow: 0 14px 42px rgba(25, 31, 43, 0.18);
+      }
+
+      .modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 24px 28px 18px;
+      }
+
+      .modal-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0;
+        font-size: 20px;
+        font-weight: 700;
+      }
+
+      .info-dot {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        color: #fff;
+        background: #2f64ff;
+        font-style: italic;
+        font-size: 12px;
+      }
+
+      .close {
+        border: 0;
+        color: #c9ced8;
+        background: transparent;
+        font-size: 28px;
+        line-height: 1;
+        cursor: pointer;
+      }
+
+      .modal-body {
+        padding: 10px 28px 18px;
+      }
+
+      .form-row {
+        margin-bottom: 18px;
+      }
+
+      .form-label {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        margin-bottom: 8px;
+        color: #4c5365;
+        font-size: 14px;
+        line-height: 1.25;
+      }
+
+      .required {
+        color: #ff392f;
+      }
+
+      .input,
+      .textarea,
+      .select {
+        width: 100%;
+        border: 1px solid #d7dce7;
+        border-radius: 4px;
+        color: #232936;
+        background: #fff;
+        outline: none;
+      }
+
+      .input,
+      .select {
+        height: 38px;
+        padding: 0 12px;
+        font-size: 14px;
+      }
+
+      .textarea {
+        min-height: 78px;
+        padding: 10px 12px;
+        resize: vertical;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+
+      .input::placeholder,
+      .textarea::placeholder {
+        color: #b9c0cf;
+      }
+
+      .disabled {
+        color: #b8bfcd;
+        background: #f5f7fb;
+      }
+
+      .mode-tabs {
+        display: flex;
+        align-items: flex-end;
+        gap: 4px;
+        margin-bottom: 18px;
+        border-bottom: 1px solid #e5e9f2;
+      }
+
+      .mode-option {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 96px;
+        height: 38px;
+        padding: 0 12px;
+        border: 0;
+        border-bottom: 2px solid transparent;
+        color: #697386;
+        background: #fff;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      .mode-option input {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .mode-option.is-active {
+        border-bottom-color: #245bff;
+        color: #1e49cc;
+      }
+
+      .inline-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+      }
+
+      .field-card {
+        padding: 10px 12px;
+        border: 1px solid #e0e5ef;
+        border-radius: 6px;
+        background: #fbfcff;
+      }
+
+      .field-card label {
+        display: block;
+        margin-bottom: 8px;
+        color: #6c7485;
+        font-size: 12px;
+      }
+
+      .compact-input {
+        width: 100%;
+        height: 32px;
+        padding: 0 8px;
+        border: 1px solid #d7dce7;
+        border-radius: 4px;
+        color: #242a36;
+        background: #fff;
+        font-size: 14px;
+      }
+
+      .help-text {
+        margin-top: 8px;
+        color: #858da0;
+        font-size: 12px;
+      }
+
+      .reason-row {
+        position: relative;
+      }
+
+      .counter {
+        position: absolute;
+        right: 18px;
+        bottom: 15px;
+        color: #697386;
+        font-size: 12px;
+      }
+
+      .service-options {
+        display: flex;
+        align-items: center;
+        gap: 30px;
+        margin: 8px 0 18px;
+        color: #b1b8c9;
+        font-size: 14px;
+      }
+
+      .service-options label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .service-options input {
+        width: 16px;
+        height: 16px;
+        accent-color: #88b6ff;
+      }
+
+      .fee-input-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: #4c5365;
+        font-size: 16px;
+      }
+
+      .fee-input-row .input {
+        width: 96px;
+      }
+
+      .recognition {
+        overflow: hidden;
+        border: 1px solid #dfe5f0;
+        border-radius: 6px;
+        background: #fff;
+      }
+
+      .recognition-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 12px;
+        border-bottom: 1px solid #e9edf5;
+        background: #fbfcff;
+      }
+
+      .recognition-title {
+        margin: 0;
+        color: #303746;
+        font-size: 14px;
+        font-weight: 650;
+      }
+
+      .recognition-summary {
+        color: #6b7383;
+        font-size: 12px;
+      }
+
+      #recognitionContent {
+        overflow-x: auto;
+      }
+
+      .recognition-table {
+        min-width: 980px;
+        table-layout: fixed;
+      }
+
+      .recognition-table th,
+      .recognition-table td {
+        height: 38px;
+        padding: 0 8px;
+        font-size: 12px;
+      }
+
+      .recognition-table th {
+        background: #fff;
+      }
+
+      .ellipsis {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+
+      .sub-info {
+        margin-top: 4px;
+        color: #7b8497;
+        font-size: 12px;
+      }
+
+      .status-pill {
+        display: inline-flex;
+        align-items: center;
+        height: 20px;
+        padding: 0 6px;
+        border-radius: 3px;
+        color: #1b8f53;
+        background: #eaf8f0;
+        font-size: 12px;
+      }
+
+      .status-pill.is-danger {
+        color: #d93025;
+        background: #fff0ef;
+      }
+
+      .danger-row td {
+        color: #d93025;
+        background: #fffafa;
+      }
+
+      .text-action {
+        border: 0;
+        color: #245bff;
+        background: transparent;
+        cursor: pointer;
+      }
+
+      .empty {
+        padding: 18px;
+        color: #8a92a3;
+        text-align: center;
+      }
+
+      .modal-footer {
+        position: sticky;
+        bottom: 0;
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        padding: 14px 28px 20px;
+        background: linear-gradient(rgba(255, 255, 255, 0.84), #fff 26%);
+      }
+
+      .modal-footer .btn {
+        width: 72px;
+        height: 38px;
+        padding: 0;
+        font-size: 14px;
+      }
+
+      .drawer {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: min(560px, calc(100vw - 48px));
+        height: 100vh;
+        transform: translateX(100%);
+        background: #fff;
+        z-index: 40;
+        transition: transform 0.2s ease;
+        box-shadow: -16px 0 42px rgba(26, 31, 42, 0.18);
+      }
+
+      .drawer.is-open {
+        transform: translateX(0);
+      }
+
+      .drawer-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 72px;
+        padding: 0 28px;
+        border-bottom: 1px solid #eef0f4;
+      }
+
+      .drawer-title {
+        margin: 0;
+        color: #131926;
+        font-size: 20px;
+        font-weight: 700;
+      }
+
+      .drawer-body {
+        padding: 34px 48px;
+      }
+
+      .drawer-row {
+        display: grid;
+        grid-template-columns: 150px minmax(220px, 1fr);
+        gap: 14px;
+        margin-bottom: 28px;
+      }
+
+      .drawer-label {
+        color: #4e5668;
+        font-size: 16px;
+        line-height: 32px;
+      }
+
+      .drawer-value {
+        color: #545b6a;
+        font-size: 16px;
+        line-height: 32px;
+      }
+
+      .drawer-input {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .drawer-input .compact-input {
+        height: 38px;
+        font-size: 14px;
+      }
+
+      .drawer-note {
+        margin-top: 8px;
+        color: #81889a;
+        font-size: 12px;
+      }
+
+      .toast {
+        position: fixed;
+        left: 50%;
+        bottom: 28px;
+        display: none;
+        transform: translateX(-50%);
+        padding: 12px 18px;
+        border-radius: 4px;
+        color: #fff;
+        background: rgba(31, 36, 48, 0.92);
+        z-index: 80;
+      }
+
+      .toast.is-open {
+        display: block;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      @media (max-width: 760px) {
+        .page {
+          padding: 18px;
+        }
+
+        .page-header,
+        .header-actions,
+        .inline-grid {
+          grid-template-columns: 1fr;
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .modal {
+          width: calc(100vw - 24px);
+        }
+
+        .modal-header,
+        .modal-body,
+        .modal-footer {
+          padding-left: 22px;
+          padding-right: 22px;
+        }
+
+        .modal-title {
+          font-size: 16px;
+        }
+
+        .form-label {
+          font-size: 14px;
+        }
+
+        .input,
+        .select,
+        .textarea {
+          font-size: 14px;
+        }
+
+        .service-options,
+        .fee-input-row {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 14px;
+          font-size: 14px;
+        }
+
+        .drawer-row {
+          grid-template-columns: 1fr;
+          gap: 10px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <header class="page-header">
+        <h1 class="page-title">提报申请管理</h1>
+        <div class="header-actions">
+          <button class="btn" type="button" id="openDrawerBtn">查看百应商品报名抽屉</button>
+          <button class="btn btn-primary" type="button" id="openModalBtn">新增提报申请</button>
+        </div>
+      </header>
+
+      <section class="table-wrap" aria-label="提报申请列表">
+        <table>
+          <thead>
+            <tr>
+              <th>活动信息</th>
+              <th>提报方式</th>
+              <th>商品计划</th>
+              <th>合作周期</th>
+              <th>状态</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>618 精选好物招商</td>
+              <td>定向提报</td>
+              <td>每活动 5 个计划</td>
+              <td>2026/06/08 至 2026/09/06</td>
+              <td><span class="status">待提报</span></td>
+              <td><button class="btn-link" type="button" id="rowOpenBtn">查看配置</button></td>
+            </tr>
+            <tr>
+              <td>夏季爆品专项</td>
+              <td>普通提报</td>
+              <td>手动选择 1 个计划</td>
+              <td>2026/06/08 至 2026/07/31</td>
+              <td><span class="status">已提交</span></td>
+              <td><button class="btn-link" type="button">详情</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+
+    <div class="mask is-open" id="mask"></div>
+
+    <section class="modal" id="reportModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <header class="modal-header">
+        <h2 class="modal-title" id="modalTitle">新增提报申请 <span class="info-dot">i</span></h2>
+        <button class="close" type="button" id="closeModalBtn" aria-label="关闭">×</button>
+      </header>
+
+      <div class="modal-body">
+        <div class="mode-tabs" role="tablist" aria-label="提报类型">
+          <label class="mode-option" id="normalModeLabel" role="tab" aria-controls="normalForm" aria-selected="false">
+            <input type="radio" name="reportMode" value="normal" />
+            普通提报
+          </label>
+          <label class="mode-option is-active" id="directModeLabel" role="tab" aria-controls="directForm" aria-selected="true">
+            <input type="radio" name="reportMode" value="direct" checked />
+            定向提报
+          </label>
+        </div>
+
+        <div id="normalForm" class="hidden" role="tabpanel" aria-labelledby="normalModeLabel">
+          <div class="form-row">
+            <label class="form-label" for="activityId"><span class="required">*</span>活动ID</label>
+            <input class="input" id="activityId" placeholder="请输入" />
+          </div>
+
+          <div class="form-row">
+            <label class="form-label" for="productPlan"><span class="required">*</span>商品计划</label>
+            <select class="select disabled" id="productPlan">
+              <option>请先输入活动ID，再进行商品计划的搜索和选择</option>
+            </select>
+          </div>
+
+          <div class="form-row reason-row">
+            <label class="form-label" for="normalReason"><span class="required">*</span>提报申请原因</label>
+            <input class="input" id="normalReason" maxlength="50" placeholder="请输入，最多50个字" />
+            <span class="counter" id="normalReasonCounter">0/50</span>
+          </div>
+
+          <div class="form-row">
+            <div class="form-label"><span class="required">*</span>服务费</div>
+            <div class="service-options">
+              <label><input type="radio" name="feeMode" checked /> 自定义填写</label>
+              <label><input type="radio" name="feeMode" disabled /> 固定比例</label>
+              <label><input type="radio" name="feeMode" disabled /> 自定义比例</label>
+            </div>
+            <div class="fee-input-row">
+              让出日常服务费
+              <input class="input" type="number" />
+              %
+            </div>
+          </div>
+        </div>
+
+        <div id="directForm" role="tabpanel" aria-labelledby="directModeLabel">
+          <div class="form-row">
+            <label class="form-label" for="activityLinks"><span class="required">*</span>招商活动链接/活动ID</label>
+            <textarea class="textarea" id="activityLinks" placeholder="支持输入多个，用逗号隔开；活动链接或活动ID都可解析">https://buyin.jinritemai.com/activity/618001，https://buyin.jinritemai.com/activity/618002，618003</textarea>
+            <div class="help-text">系统会按活动分别提报配置数量，不合并多个活动的名额。</div>
+          </div>
+
+          <div class="form-row">
+            <div class="recognition">
+              <div class="recognition-head">
+                <h3 class="recognition-title">活动识别结果</h3>
+                <span class="recognition-summary" id="recognitionSummary"></span>
+              </div>
+              <div id="recognitionContent"></div>
+            </div>
+            <div class="help-text">报名截止时间过期、活动识别失败会标红展示，提交时自动过滤，不进入本次提报。</div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-label"><span class="required">*</span>定向提报配置</div>
+            <div class="inline-grid">
+              <div class="field-card">
+                <label for="planCount">每个活动提报计划数量</label>
+                <input class="compact-input" id="planCount" type="number" min="1" max="50" value="5" />
+              </div>
+              <div class="field-card">
+                <label for="internalLeader">内部团长账号</label>
+                <input class="compact-input" id="internalLeader" value="抖老板严选" disabled />
+              </div>
+              <div class="field-card">
+                <label for="cooperationEnd">合作结束时间</label>
+                <input class="compact-input" id="cooperationEnd" type="date" />
+              </div>
+            </div>
+            <div class="help-text">商品计划筛选：非托管、支持提报二级团、剩余有效期大于 90 天；同一商品下优先按照佣金率、服务费率、剩余时间降序选择最优计划提报。</div>
+          </div>
+
+          <div class="form-row">
+            <label class="form-label" for="directTransferFee"><span class="required">*</span>让出日常服务费</label>
+            <div class="fee-input-row">
+              <input class="input" id="directTransferFee" type="number" min="0" max="100" value="60" />
+              %
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <footer class="modal-footer">
+        <button class="btn" type="button" id="cancelBtn">取消</button>
+        <button class="btn btn-primary" type="button" id="submitBtn">确定</button>
+      </footer>
+    </section>
+
+    <aside class="drawer" id="byDrawer" aria-label="百应商品报名抽屉">
+      <header class="drawer-header">
+        <h2 class="drawer-title">商品报名</h2>
+        <button class="close" type="button" id="closeDrawerBtn" aria-label="关闭">×</button>
+      </header>
+      <div class="drawer-body">
+        <div class="drawer-row">
+          <div class="drawer-label"><span class="required">*</span> 活动佣金率</div>
+          <div class="drawer-value" id="drawerCommission">20%</div>
+        </div>
+        <div class="drawer-row">
+          <div class="drawer-label"><span class="required">*</span> 活动服务费率 ⓘ</div>
+          <div>
+            <div class="drawer-input">
+              <input class="compact-input" id="drawerServiceRate" type="number" value="24" step="0.01" />
+              <span class="drawer-value">%</span>
+            </div>
+            <div class="drawer-note">佣金率 + 服务费率 ≤ 90%</div>
+          </div>
+        </div>
+        <div class="drawer-row">
+          <div class="drawer-label"><span class="required">*</span> 合作结束时间 ⓘ</div>
+          <div>
+            <input class="compact-input" id="drawerEndDate" type="date" />
+            <div class="drawer-note">默认操作当天日期 + 90 天，可配置。</div>
+          </div>
+        </div>
+        <div class="drawer-row">
+          <div class="drawer-label"><span class="required">*</span> 联系电话</div>
+          <input class="compact-input" id="phone" placeholder="请输入联系电话" value="13800000000" />
+        </div>
+      </div>
+    </aside>
+
+    <div class="toast" id="toast">已生成定向提报申请</div>
+
+    <script>
+      const products = [
+        { name: "轻奢护肤套装", plan: "JH-9021", commission: 32, service: 18, days: 128, hosted: false, second: true },
+        { name: "家用清洁湿巾", plan: "JH-8842", commission: 28, service: 22, days: 141, hosted: false, second: true },
+        { name: "空气炸锅 5L", plan: "JH-7730", commission: 28, service: 22, days: 166, hosted: false, second: true },
+        { name: "夏季防晒衣", plan: "JH-6618", commission: 26, service: 24, days: 112, hosted: false, second: true },
+        { name: "儿童学习台灯", plan: "JH-5520", commission: 24, service: 26, days: 108, hosted: false, second: true },
+        { name: "无糖气泡水", plan: "JH-3119", commission: 24, service: 18, days: 96, hosted: false, second: true },
+        { name: "高蛋白早餐麦片", plan: "JH-4208", commission: 22, service: 26, days: 94, hosted: false, second: true },
+        { name: "托管剃须刀", plan: "JH-1106", commission: 34, service: 28, days: 130, hosted: true, second: true },
+        { name: "不支持二级团纸巾", plan: "JH-2068", commission: 31, service: 21, days: 118, hosted: false, second: false },
+        { name: "短效洗衣液", plan: "JH-5186", commission: 30, service: 23, days: 72, hosted: false, second: true }
+      ];
+
+      const activityNames = {
+        "3935825": "玩具乐器招商活动",
+        "618001": "618 精选好物招商",
+        "618002": "夏季爆品专项招商",
+        "618003": "百货高佣冲刺活动"
+      };
+
+      const activityProfiles = {
+        "3935825": {
+          leader: "羽觅网络",
+          deadline: "2029-06-30",
+          categories: "玩具乐器,服饰内衣,个护家清,智能家居,生鲜,美妆,母婴用品",
+          cycle: "1天",
+          minCommission: 0,
+          minService: 0
+        },
+        "618001": {
+          leader: "星选联盟",
+          deadline: "2026-08-31",
+          categories: "美妆护肤,个人护理,食品饮料,家居日用",
+          cycle: "7天",
+          minCommission: 20,
+          minService: 10
+        },
+        "618002": {
+          leader: "青禾严选",
+          deadline: "2026-06-01",
+          categories: "服饰内衣,鞋靴箱包,运动户外",
+          cycle: "3天",
+          minCommission: 15,
+          minService: 8
+        },
+        "618003": {
+          leader: "百货增长团",
+          deadline: "2026-09-15",
+          categories: "家居日用,厨房用具,清洁纸品,数码配件",
+          cycle: "5天",
+          minCommission: 12,
+          minService: 5
+        }
+      };
+
+      const modal = document.getElementById("reportModal");
+      const mask = document.getElementById("mask");
+      const drawer = document.getElementById("byDrawer");
+      const normalForm = document.getElementById("normalForm");
+      const directForm = document.getElementById("directForm");
+      const normalReason = document.getElementById("normalReason");
+      const normalReasonCounter = document.getElementById("normalReasonCounter");
+      const planCount = document.getElementById("planCount");
+      const activityLinks = document.getElementById("activityLinks");
+      const recognitionContent = document.getElementById("recognitionContent");
+      const recognitionSummary = document.getElementById("recognitionSummary");
+      const cooperationEnd = document.getElementById("cooperationEnd");
+      const drawerEndDate = document.getElementById("drawerEndDate");
+      let currentMode = "direct";
+
+      function formatDate(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+      }
+
+      function getDefaultEndDate() {
+        const date = new Date();
+        date.setDate(date.getDate() + 90);
+        return formatDate(date);
+      }
+
+      function parseActivities(value) {
+        return value
+          .split(/[\n,，\s]+/)
+          .map((item) => item.trim())
+          .filter(Boolean)
+          .map((item, index) => {
+            const matched = item.match(/(\d{6,})/);
+            const id = matched ? matched[1] : "";
+            const profile = activityProfiles[id];
+            const recognized = Boolean(id && profile);
+            return {
+              id: id || `待解析-${index + 1}`,
+              source: item,
+              name: recognized ? activityNames[id] : "-",
+              recognized,
+              expired: recognized ? profile.deadline < "2026-06-08" : false,
+              profile
+            };
+          });
+      }
+
+      function getSubmittableActivities() {
+        return parseActivities(activityLinks.value).filter((item) => item.recognized && !item.expired);
+      }
+
+      function renderRecognition() {
+        const activities = parseActivities(activityLinks.value);
+        const failedCount = activities.filter((item) => !item.recognized).length;
+        const expiredCount = activities.filter((item) => item.expired).length;
+        const submittableCount = activities.length - failedCount - expiredCount;
+        const configuredCount = Math.max(Number(planCount.value || 0), 0);
+        const availablePlanCount = getMatchedProducts(configuredCount).length;
+        const totalPlanCount = submittableCount * availablePlanCount;
+
+        recognitionSummary.textContent = activities.length
+          ? `共 ${activities.length} 个，将提交 ${submittableCount} 个活动，预计提报 ${totalPlanCount} 个计划，过滤 ${failedCount + expiredCount} 个活动`
+          : "待输入活动链接或活动ID";
+
+        if (!activities.length) {
+          recognitionContent.innerHTML = '<div class="empty">请输入招商活动链接或活动ID后查看识别结果</div>';
+          return;
+        }
+
+        const rows = activities
+          .map((activity, index) => {
+            const danger = !activity.recognized || activity.expired;
+            const statusText = !activity.recognized ? "识别失败，提交过滤" : activity.expired ? "报名已截止，提交过滤" : "可提交";
+            const activityPlanCount = danger ? 0 : availablePlanCount;
+            const profile = activity.profile || {};
+            return `
+              <tr class="${danger ? "danger-row" : ""}">
+                <td>${activity.id}</td>
+                <td>
+                  <div class="ellipsis" title="${activity.name}">${activity.name}</div>
+                  <div class="sub-info ellipsis" title="${profile.categories || "-"}">类目：${profile.categories || "-"}</div>
+                </td>
+                <td>${profile.leader || "-"}</td>
+                <td>${profile.deadline || "-"}</td>
+                <td>${profile.cycle || "-"}</td>
+                <td>${profile.minCommission ?? "-"}${activity.recognized ? "%" : ""}</td>
+                <td>${profile.minService ?? "-"}${activity.recognized ? "%" : ""}</td>
+                <td>${activityPlanCount} 个</td>
+                <td><span class="status-pill ${danger ? "is-danger" : ""}">${statusText}</span></td>
+                <td><button class="text-action" type="button" data-delete-activity="${index}">删除</button></td>
+              </tr>
+            `;
+          })
+          .join("");
+
+        recognitionContent.innerHTML = `
+          <table class="recognition-table">
+            <thead>
+              <tr>
+                <th style="width: 96px;">活动ID</th>
+                <th style="width: 220px;">活动名称/招商类目</th>
+                <th style="width: 98px;">团长名称</th>
+                <th style="width: 116px;">报名截止</th>
+                <th style="width: 86px;">推广周期</th>
+                <th style="width: 86px;">佣金门槛</th>
+                <th style="width: 98px;">服务费门槛</th>
+                <th style="width: 138px;">本次可提报计划数量</th>
+                <th style="width: 126px;">状态</th>
+                <th style="width: 64px;">操作</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        `;
+      }
+
+      function getMatchedProducts(limit) {
+        return products
+          .filter((item) => !item.hosted && item.second && item.days > 90)
+          .sort((a, b) => {
+            if (b.commission !== a.commission) return b.commission - a.commission;
+            if (b.service !== a.service) return b.service - a.service;
+            return b.days - a.days;
+          })
+          .slice(0, limit);
+      }
+
+      function setMode(mode) {
+        const direct = mode === "direct";
+        currentMode = mode;
+        const directLabel = document.getElementById("directModeLabel");
+        const normalLabel = document.getElementById("normalModeLabel");
+        directLabel.classList.toggle("is-active", direct);
+        normalLabel.classList.toggle("is-active", !direct);
+        directLabel.setAttribute("aria-selected", String(direct));
+        normalLabel.setAttribute("aria-selected", String(!direct));
+        directForm.classList.toggle("hidden", !direct);
+        normalForm.classList.toggle("hidden", direct);
+        renderCounter();
+        if (direct) {
+          renderRecognition();
+        }
+      }
+
+      function renderCounter() {
+        normalReasonCounter.textContent = `${normalReason.value.length}/50`;
+      }
+
+      function openModal() {
+        modal.classList.remove("hidden");
+        mask.classList.add("is-open");
+      }
+
+      function closeModal() {
+        modal.classList.add("hidden");
+        if (!drawer.classList.contains("is-open")) mask.classList.remove("is-open");
+      }
+
+      function openDrawer() {
+        drawer.classList.add("is-open");
+        mask.classList.add("is-open");
+      }
+
+      function closeDrawer() {
+        drawer.classList.remove("is-open");
+        if (modal.classList.contains("hidden")) mask.classList.remove("is-open");
+      }
+
+      function showToast(message) {
+        const toast = document.getElementById("toast");
+        toast.textContent = message;
+        toast.classList.add("is-open");
+        window.setTimeout(() => toast.classList.remove("is-open"), 1800);
+      }
+
+      document.querySelectorAll('input[name="reportMode"]').forEach((radio) => {
+        radio.addEventListener("change", (event) => setMode(event.target.value));
+      });
+
+      activityLinks.addEventListener("input", () => {
+        renderRecognition();
+      });
+
+      recognitionContent.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-delete-activity]");
+        if (!button) return;
+        const deleteIndex = Number(button.dataset.deleteActivity);
+        const nextItems = activityLinks.value
+          .split(/[\n,，\s]+/)
+          .map((item) => item.trim())
+          .filter(Boolean)
+          .filter((_, index) => index !== deleteIndex);
+        activityLinks.value = nextItems.join("，");
+        renderRecognition();
+      });
+
+      planCount.addEventListener("input", renderRecognition);
+
+      normalReason.addEventListener("input", renderCounter);
+
+      cooperationEnd.addEventListener("input", () => {
+        drawerEndDate.value = cooperationEnd.value;
+      });
+
+      drawerEndDate.addEventListener("input", () => {
+        cooperationEnd.value = drawerEndDate.value;
+      });
+
+      document.getElementById("openModalBtn").addEventListener("click", openModal);
+      document.getElementById("rowOpenBtn").addEventListener("click", openModal);
+      document.getElementById("closeModalBtn").addEventListener("click", closeModal);
+      document.getElementById("cancelBtn").addEventListener("click", closeModal);
+      document.getElementById("openDrawerBtn").addEventListener("click", openDrawer);
+      document.getElementById("closeDrawerBtn").addEventListener("click", closeDrawer);
+
+      document.getElementById("submitBtn").addEventListener("click", () => {
+        if (currentMode === "normal") {
+          showToast("已生成普通提报申请");
+          return;
+        }
+
+        const allActivities = parseActivities(activityLinks.value);
+        const activities = getSubmittableActivities();
+        if (!allActivities.length) {
+          showToast("请先输入招商活动链接或活动ID");
+          return;
+        }
+        if (!activities.length) {
+          showToast("无可提交活动，已过滤识别失败或报名已截止活动");
+          return;
+        }
+        showToast(`已直接发起 ${activities.length} 个活动的定向提报，已过滤 ${allActivities.length - activities.length} 个活动`);
+      });
+
+      const defaultEndDate = getDefaultEndDate();
+      cooperationEnd.value = defaultEndDate;
+      drawerEndDate.value = defaultEndDate;
+      setMode("direct");
+      renderCounter();
+      renderRecognition();
+    </script>
+  </body>
+</html>
