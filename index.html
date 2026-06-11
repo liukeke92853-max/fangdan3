@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>定向提报 Demo</title>
+    <title>多品提报 Demo</title>
     <style>
       * {
         box-sizing: border-box;
@@ -636,7 +636,7 @@
           <tbody>
             <tr>
               <td>618 精选好物招商</td>
-              <td>定向提报</td>
+              <td>多品提报</td>
               <td>每活动 5 个计划</td>
               <td>2026/06/08 至 2026/09/06</td>
               <td><span class="status">待提报</span></td>
@@ -644,7 +644,7 @@
             </tr>
             <tr>
               <td>夏季爆品专项</td>
-              <td>普通提报</td>
+              <td>单品提报</td>
               <td>手动选择 1 个计划</td>
               <td>2026/06/08 至 2026/07/31</td>
               <td><span class="status">已提交</span></td>
@@ -667,11 +667,11 @@
         <div class="mode-tabs" role="tablist" aria-label="提报类型">
           <label class="mode-option" id="normalModeLabel" role="tab" aria-controls="normalForm" aria-selected="false">
             <input type="radio" name="reportMode" value="normal" />
-            普通提报
+            单品提报
           </label>
           <label class="mode-option is-active" id="directModeLabel" role="tab" aria-controls="directForm" aria-selected="true">
             <input type="radio" name="reportMode" value="direct" checked />
-            定向提报
+            多品提报
           </label>
         </div>
 
@@ -728,7 +728,7 @@
           </div>
 
           <div class="form-row">
-            <div class="form-label"><span class="required">*</span>定向提报配置</div>
+            <div class="form-label"><span class="required">*</span>多品提报配置</div>
             <div class="inline-grid">
               <div class="field-card">
                 <label for="planCount">每个活动提报计划数量</label>
@@ -797,7 +797,7 @@
       </div>
     </aside>
 
-    <div class="toast" id="toast">已生成定向提报申请</div>
+    <div class="toast" id="toast">已生成多品提报申请</div>
 
     <script>
       const products = [
@@ -1074,7 +1074,7 @@
 
       document.getElementById("submitBtn").addEventListener("click", () => {
         if (currentMode === "normal") {
-          showToast("已生成普通提报申请");
+          showToast("已生成单品提报申请");
           return;
         }
 
@@ -1088,7 +1088,7 @@
           showToast("无可提交活动，已过滤识别失败或报名已截止活动");
           return;
         }
-        showToast(`已直接发起 ${activities.length} 个活动的定向提报，已过滤 ${allActivities.length - activities.length} 个活动`);
+        showToast(`已直接发起 ${activities.length} 个活动的多品提报，已过滤 ${allActivities.length - activities.length} 个活动`);
       });
 
       const defaultEndDate = getDefaultEndDate();
